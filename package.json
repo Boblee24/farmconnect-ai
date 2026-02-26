@@ -1,0 +1,28 @@
+{
+  "name": "farmconnect-ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/formbody": "^8.0.2",
+    "axios": "^1.13.5",
+    "bull": "^4.16.5",
+    "dayjs": "^1.11.19",
+    "dotenv": "^17.3.1",
+    "fastify": "^5.7.4",
+    "ioredis": "^5.9.3",
+    "pg": "^8.19.0",
+    "twilio": "^5.12.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
