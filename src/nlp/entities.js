@@ -1,0 +1,78 @@
+const cropAliases = {
+  // English
+  'maize': 'Maize', 'corn': 'Maize',
+  'rice': 'Rice',
+  'yam': 'Yam',
+  'cassava': 'Cassava', 'garri': 'Cassava', 'tapioca': 'Cassava',
+  'tomato': 'Tomato', 'tomatoes': 'Tomato',
+  'onion': 'Onion', 'onions': 'Onion',
+  'sorghum': 'Sorghum', 'guinea corn': 'Sorghum',
+  'cowpea': 'Cowpea', 'beans': 'Cowpea',
+  'groundnut': 'Groundnut', 'peanut': 'Groundnut', 'groundnuts': 'Groundnut',
+  'plantain': 'Plantain', 'plantains': 'Plantain',
+
+  // Hausa
+  'masara': 'Maize',
+  'shinkafa': 'Rice',
+  'doya': 'Yam',
+  'rogo': 'Cassava',
+  'tumatir': 'Tomato',
+  'albasa': 'Onion',
+  'dawa': 'Sorghum',
+  'wake': 'Cowpea',
+  'gyada': 'Groundnut',
+  'ayaba': 'Plantain',
+
+  // Yoruba
+  'agbado': 'Maize',
+  'iresi': 'Rice',
+  'isu': 'Yam',
+  'ege': 'Cassava',
+  'tomati': 'Tomato',
+  'alubosa': 'Onion',
+  'ewa': 'Cowpea',
+  'epa': 'Groundnut',
+  'ogede': 'Plantain',
+
+  // Igbo
+  'oka': 'Maize',
+  'osikapa': 'Rice',
+  'ji': 'Yam',
+  'akpu': 'Cassava',
+  'akidi': 'Cowpea',
+  'ahụekere': 'Groundnut',
+  'ojoko': 'Plantain',
+};
+
+const marketAliases = {
+  'mile 12': 'Mile 12 Market',
+  'mile12': 'Mile 12 Market',
+  'bodija': 'Bodija Market',
+  'kano': 'Kano Central Market',
+  'kano central': 'Kano Central Market',
+  'wudil': 'Wudil Market',
+  'sokoto': 'Kasuwan Barchi',
+  'dawanau': 'Dawanau Market',
+  'abuja': 'Galadima Market',
+  'galadima': 'Galadima Market',
+  'nyanya': 'Nyanya Market',
+  'onitsha': 'Onitsha Main Market',
+  'awka': 'Eke Awka Market',
+  'aba': 'Aba Market',
+  'enugu': 'Ogbete Market',
+  'ogbete': 'Ogbete Market',
+  'port harcourt': 'Creek Road Market',
+  'ph': 'Creek Road Market',
+  'rumuola': 'Rumuola Market',
+  'owode': 'Owode Market',
+  'kaduna': 'Sabo Market',
+  'kumasi': 'Kumasi Central Market',
+  'accra': 'Accra Makola Market',
+  'makola': 'Accra Makola Market',
+  'nairobi': 'Wakulima Market',
+  'wakulima': 'Wakulima Market',
+  'mombasa': 'Kongowea Market',
+  'kongowea': 'Kongowea Market',
+};
+
+module.exports = { cropAliases, marketAliases };
