@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmConnect AI — Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1f2e;
+      border-bottom: 1px solid #2d3748;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 20px;
+      color: #48bb78;
+      font-weight: 700;
+    }
+
+    header span {
+      background: #2d3748;
+      color: #a0aec0;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .container { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #48bb78;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      background: #1a1f2e;
+      padding: 4px;
+      border-radius: 10px;
+      width: fit-content;
+    }
+
+    .tab {
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #718096;
+      border: none;
+      background: none;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #48bb78;
+      color: #0f1117;
+      font-weight: 600;
+    }
+
+    /* Panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Table */
+    .table-wrap {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #2d3748;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-header h2 { font-size: 16px; font-weight: 600; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #161b27;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-top: 1px solid #2d3748;
+      font-size: 14px;
+    }
+
+    tr:hover td { background: #1e2535; }
+
+    .trend-up { color: #48bb78; font-weight: 600; }
+    .trend-down { color: #fc8181; font-weight: 600; }
+    .trend-stable { color: #f6ad55; font-weight: 600; }
+
+    .badge {
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-green { background: #1a3a2a; color: #48bb78; }
+    .badge-blue { background: #1a2a3a; color: #63b3ed; }
+    .badge-orange { background: #3a2a1a; color: #f6ad55; }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 20px;
+      background: #161b27;
+      border-top: 1px solid #2d3748;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .form-group label {
+      font-size: 12px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group select,
+    .form-group input {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-green { background: #48bb78; color: #0f1117; }
+    .btn-green:hover { background: #38a169; }
+    .btn-small {
+      padding: 4px 12px;
+      font-size: 12px;
+      background: #2d3748;
+      color: #e2e8f0;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-small:hover { background: #4a5568; }
+
+    .form-actions {
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 2px;
+    }
+
+    /* Edit inline */
+    .editable {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #e2e8f0;
+      padding: 4px 8px;
+      border-radius: 6px;
+      width: 80px;
+      font-size: 14px;
+    }
+
+    .editable:focus {
+      border-color: #48bb78;
+      background: #1a1f2e;
+      outline: none;
+    }
+
+    select.editable { width: 100px; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #48bb78;
+      color: #0f1117;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      display: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>🌾</span>
+  <h1>FarmConnect AI</h1>
+  <span>Admin Dashboard</span>
+</header>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats" id="stats">
+    <div class="stat-card">
+      <div class="label">Registered Farmers</div>
+      <div class="value" id="stat-farmers">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Messages Today</div>
+      <div class="value" id="stat-messages">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Price Entries</div>
+      <div class="value" id="stat-prices">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Verified Buyers</div>
+      <div class="value" id="stat-buyers">—</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('prices')">💰 Prices</button>
+    <button class="tab" onclick="switchTab('farmers')">👨‍🌾 Farmers</button>
+    <button class="tab" onclick="switchTab('buyers')">🛒 Buyers</button>
+  </div>
+
+  <!-- Prices Panel -->
+  <div class="panel active" id="panel-prices">
+    <div class="table-wrap">
+      <div class="table-header">
+        <h2>Crop Prices</h2>
+        <span style="font-size:13px;color:#718096">Click price or trend to edit inline</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Crop</th>
+            <th>Market</th>
+            <th>State</th>
+            <th>Country</th>
+            <th>Price (₦/kg)</th>
+            <th>Trend</th>
+            <th>Last Updated</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="prices-table">
+          <tr><td colspan="8" style="text-align:center;color:#718096;padding:32px">Loading...</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Add Price Form -->
+      <div class="form-grid" id="add-price-form">
+        <div class="form-group">
+          <label>Crop</label>
+          <select id="new-crop-id"></select>
+        </div>
+        <div class="form-group">
+          <label>Market</label>
+          <select id="new-market-id"></select>
+        </div>
+        <div class="form-group">
+          <label>Price (₦ per kg)</label>
+          <input type="number" id="new-price" placeholder="e.g. 450" />
+        </div>
+        <div class="form-group">
+          <label>Trend</label>
+          <select id="new-trend">
+            <option value="stable">➡️ Stable</option>
+            <option value="up">📈 Up</option>
+            <option value="down">📉 Down</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-green" onclick="addPrice()">+ Add Price</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Farmers Panel -->
+  <div class="panel" id="panel-farmers">
+    <div class="table-wrap">
+      <div class="table-header">
+        <h2>Registered Farmers</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Location</th>
+            <th>Crops</th>
+            <th>Language</th>
+            <th>Queries</th>
+            <th>Subscribed</th>
+            <th>Joined</th>
+          </tr>
+        </thead>
+        <tbody id="farmers-table">
+          <tr><td colspan="8" style="text-align:center;color:#718096;padding:32px">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Buyers Panel -->
+  <div class="panel" id="panel-buyers">
+    <div class="table-wrap">
+      <div class="table-header">
+        <h2>Verified Buyers</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Type</th>
+            <th>Crops</th>
+            <th>Locations</th>
+            <th>Min Qty</th>
+            <th>Max Qty</th>
+            <th>Rating</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody id="buyers-table">
+          <tr><td colspan="9" style="text-align:center;color:#718096;padding:32px">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'http://localhost:3000/api/admin';
+
+  // ── Init ──────────────────────────────────────────────
+  async function init() {
+    await Promise.all([
+      loadStats(),
+      loadPrices(),
+      loadCropsAndMarkets()
+    ]);
+  }
+
+  // ── Stats ─────────────────────────────────────────────
+  async function loadStats() {
+    const res = await fetch(`${API}/stats`);
+    const data = await res.json();
+    document.getElementById('stat-farmers').textContent = data.total_farmers;
+    document.getElementById('stat-messages').textContent = data.messages_today;
+    document.getElementById('stat-prices').textContent = data.total_prices;
+    document.getElementById('stat-buyers').textContent = data.verified_buyers;
+  }
+
+  // ── Prices ────────────────────────────────────────────
+  async function loadPrices() {
+    const res = await fetch(`${API}/prices`);
+    const prices = await res.json();
+    const tbody = document.getElementById('prices-table');
+
+    tbody.innerHTML = prices.map(p => `
+      <tr>
+        <td><span class="badge badge-green">${p.crop_name}</span></td>
+        <td>${p.market_name}</td>
+        <td>${p.state}</td>
+        <td>${p.country}</td>
+        <td>
+          <input class="editable" type="number" value="${p.price_per_unit}" id="price-${p.id}" />
+        </td>
+        <td>
+          <select class="editable" id="trend-${p.id}">
+            <option value="stable" ${p.trend==='stable'?'selected':''}>➡️ Stable</option>
+            <option value="up" ${p.trend==='up'?'selected':''}>📈 Up</option>
+            <option value="down" ${p.trend==='down'?'selected':''}>📉 Down</option>
+          </select>
+        </td>
+        <td style="color:#718096;font-size:12px">${new Date(p.recorded_at).toLocaleDateString('en-NG')}</td>
+        <td><button class="btn-small" onclick="updatePrice('${p.id}')">Save</button></td>
+      </tr>
+    `).join('');
+  }
+
+  async function updatePrice(id) {
+    const price = document.getElementById(`price-${id}`).value;
+    const trend = document.getElementById(`trend-${id}`).value;
+
+    const res = await fetch(`${API}/prices/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price_per_unit: price, trend })
+    });
+
+    if (res.ok) {
+      showToast('✅ Price updated!');
+      loadStats();
+    } else {
+      showToast('❌ Update failed');
+    }
+  }
+
+  async function addPrice() {
+    const crop_id = document.getElementById('new-crop-id').value;
+    const market_id = document.getElementById('new-market-id').value;
+    const price_per_unit = document.getElementById('new-price').value;
+    const trend = document.getElementById('new-trend').value;
+
+    if (!crop_id || !market_id || !price_per_unit) {
+      showToast('⚠️ Fill all fields');
+      return;
+    }
+
+    const res = await fetch(`${API}/prices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ crop_id, market_id, price_per_unit, trend })
+    });
+
+    if (res.ok) {
+      showToast('✅ Price added!');
+      loadPrices();
+      loadStats();
+      document.getElementById('new-price').value = '';
+    } else {
+      showToast('❌ Failed to add price');
+    }
+  }
+
+  async function loadCropsAndMarkets() {
+    const [crops, markets] = await Promise.all([
+      fetch(`${API}/crops`).then(r => r.json()),
+      fetch(`${API}/markets`).then(r => r.json())
+    ]);
+
+    document.getElementById('new-crop-id').innerHTML =
+      crops.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+    document.getElementById('new-market-id').innerHTML =
+      markets.map(m => `<option value="${m.id}">${m.name} (${m.state})</option>`).join('');
+  }
+
+  // ── Farmers ───────────────────────────────────────────
+  async function loadFarmers() {
+    const res = await fetch(`${API}/farmers`);
+    const farmers = await res.json();
+    const tbody = document.getElementById('farmers-table');
+
+    if (farmers.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#718096;padding:32px">No farmers registered yet</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = farmers.map(f => `
+      <tr>
+        <td>${f.name || '—'}</td>
+        <td style="color:#718096">${f.phone}</td>
+        <td>${f.location || '—'}</td>
+        <td>${f.crops ? f.crops.join(', ') : '—'}</td>
+        <td><span class="badge badge-blue">${f.language || 'en'}</span></td>
+        <td>${f.query_count || 0}</td>
+        <td>${f.is_subscribed
+          ? '<span class="badge badge-green">Yes</span>'
+          : '<span class="badge badge-orange">Free</span>'}</td>
+        <td style="color:#718096;font-size:12px">${new Date(f.created_at).toLocaleDateString('en-NG')}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Buyers ────────────────────────────────────────────
+  async function loadBuyers() {
+    const res = await fetch(`${API}/buyers`);
+    const buyers = await res.json();
+    const tbody = document.getElementById('buyers-table');
+
+    tbody.innerHTML = buyers.map(b => `
+      <tr>
+        <td>${b.name}</td>
+        <td>${b.company || '—'}</td>
+        <td><span class="badge badge-blue">${b.buyer_type}</span></td>
+        <td>${b.crops ? b.crops.join(', ') : '—'}</td>
+        <td>${b.states ? b.states.join(', ') : '—'}</td>
+        <td>${b.min_quantity}${b.unit}</td>
+        <td>${b.max_quantity}${b.unit}</td>
+        <td>⭐ ${b.rating}</td>
+        <td style="color:#718096">${b.phone || '—'}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Tabs ──────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    event.target.classList.add('active');
+
+    if (tab === 'farmers') loadFarmers();
+    if (tab === 'buyers') loadBuyers();
+  }
+
+  // ── Toast ─────────────────────────────────────────────
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 3000);
+  }
+
+  init();
+</script>
+</body>
+</html>
