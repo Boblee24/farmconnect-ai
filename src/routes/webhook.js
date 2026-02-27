@@ -36,42 +36,49 @@ async function webhookRoutes(fastify, options) {
 }
 
 async function processMessage(phone, message) {
-  // 1. Get farmer and session
   const farmer = await getFarmerByPhone(phone);
   const session = await getSession(phone);
   const language = farmer?.language || 'en';
 
-  // 2. Check if farmer is mid-registration flow
+  // Handle all active session states
   if (session && session.state !== 'idle') {
+
+    // Awaiting crop for price check
+    if (session.state === 'awaiting_crop_for_price') {
+      await clearSession(phone);
+      const parsed = { crop: require('../services/nlp').extractCrop(message) || message, market: null, raw: message };
+      return handlePriceCheck(phone, parsed, language, farmer);
+    }
+
+    // Awaiting crop for buyer search
+    if (session.state === 'awaiting_crop_for_buyer') {
+      await clearSession(phone);
+      const parsed = { crop: require('../services/nlp').extractCrop(message) || message, market: null, raw: message };
+      return handleBuyerSearch(phone, parsed, language, farmer);
+    }
+
+    // Registration flow
     return handleRegistrationFlow(phone, message, session, language);
   }
 
-  // 3. Parse intent and entities
+  // Parse intent and entities
   const parsed = parseMessage(message);
   console.log(`🧠 Intent: ${parsed.intent} | Crop: ${parsed.crop} | Market: ${parsed.market}`);
 
-  // 4. Route to the right handler
   switch (parsed.intent) {
     case 'help':
       return handleHelp(phone, language, farmer);
-
     case 'register':
       return handleRegisterStart(phone, language);
-
     case 'price_check':
       return handlePriceCheck(phone, parsed, language, farmer);
-
     case 'buyer_search':
       return handleBuyerSearch(phone, parsed, language, farmer);
-
     case 'price_trend':
       return handlePriceTrend(phone, parsed, language, farmer);
-
     case 'subscribe':
       return handleSubscribe(phone, language);
-
     default:
-      // If farmer hasn't registered yet, nudge them
       if (!farmer) {
         const msg = getResponse('welcome', language);
         await sendMessage(phone, msg);
@@ -146,7 +153,6 @@ async function handleRegistrationFlow(phone, message, session, language) {
 }
 
 async function handlePriceCheck(phone, parsed, language, farmer) {
-  // Check rate limit
   const limit = await checkQueryLimit(phone);
   if (!limit.allowed) {
     const msg = getResponse('rate_limit', language);
@@ -156,14 +162,13 @@ async function handlePriceCheck(phone, parsed, language, farmer) {
 
   const { crop, market } = parsed;
 
-  // No crop found in message
   if (!crop) {
-    const msg = getResponse('crop_not_found', language);
+    await setSession(phone, 'awaiting_crop_for_price', {});
+    const msg = `💰 *Check Crop Price*\n\nWhich crop do you want to check?\n\nExample: _Maize, Rice, Yam, Cassava, Tomato, Onion_`;
     await sendMessage(phone, msg);
-    return logConversation(phone, parsed.raw, msg, 'price_check', { crop: null });
+    return;
   }
 
-  // No market — show all prices for that crop
   if (!market) {
     const msg = await getAllPricesForCropFormatted(crop);
     if (!msg) {
@@ -176,7 +181,6 @@ async function handlePriceCheck(phone, parsed, language, farmer) {
     return logConversation(phone, parsed.raw, msg, 'price_check', { crop });
   }
 
-  // Specific crop + market
   const priceData = await getPriceForCropAndMarket(crop, market);
   if (!priceData) {
     const msg = getResponse('price_not_found', language);
@@ -194,7 +198,9 @@ async function handleBuyerSearch(phone, parsed, language, farmer) {
   const crop = parsed.crop;
 
   if (!crop) {
-    const msg = `🛒 What crop are you looking to sell?\n\nExample: _"Find buyer for maize"_`;
+    // Set session to wait for crop name
+    await setSession(phone, 'awaiting_crop_for_buyer', {});
+    const msg = `🛒 *Find a Buyer*\n\nWhich crop do you want to sell?\n\nExample: _Maize, Rice, Yam, Cassava, Tomato_`;
     await sendMessage(phone, msg);
     return;
   }

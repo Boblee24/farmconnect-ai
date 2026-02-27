@@ -9,6 +9,7 @@ const intents = {
       /wetin\s+be\s+price/i,
       /kilos?\s+of\s+(\w+)/i,
       /(\w+)\s+cost/i,
+      /^1$/, 
     ]
   },
   BUYER_SEARCH: {
@@ -21,6 +22,7 @@ const intents = {
       /where\s+(?:can\s+i\s+)?sell/i,
       /connect\s+(?:me\s+)?(?:to\s+)?buyer/i,
       /market\s+for\s+(\w+)/i,
+      /^2$/,
     ]
   },
   REGISTER: {
@@ -33,6 +35,7 @@ const intents = {
       /new\s+farmer/i,
       /i\s+am\s+a\s+farmer/i,
       /i\s+want\s+to\s+join/i,
+      /^3$/,
     ]
   },
   HELP: {
