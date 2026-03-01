@@ -57,6 +57,7 @@ async function classifyIntent(message) {
     ) {
       const topLabel = result.labels[0];
       const topScore = result.scores[0];
+      console.log(`🤖 HuggingFace: "${message}" → ${topLabel} (${(topScore * 100).toFixed(1)}%)`);
 
       if (typeof topScore === 'number' && topScore < 0.5) {
         return classifyIntentWithRegex(message);
@@ -75,6 +76,7 @@ async function classifyIntent(message) {
     );
     return classifyIntentWithRegex(message);
   }
+  
 }
 
 function extractCrop(message) {
@@ -123,6 +125,5 @@ async function parseMessage(message) {
     raw: message,
   };
 }
-console.log(`🤖 HuggingFace: "${message}" → ${topLabel} (${(topScore * 100).toFixed(1)}%)`);
 
 module.exports = { parseMessage, classifyIntent, extractCrop, extractMarket };
