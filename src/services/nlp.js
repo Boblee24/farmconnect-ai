@@ -123,5 +123,6 @@ async function parseMessage(message) {
     raw: message,
   };
 }
+console.log(`🤖 HuggingFace: "${message}" → ${topLabel} (${(topScore * 100).toFixed(1)}%)`);
 
 module.exports = { parseMessage, classifyIntent, extractCrop, extractMarket };
