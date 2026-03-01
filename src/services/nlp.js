@@ -1,10 +1,15 @@
 const intents = require('../nlp/intents');
 const { cropAliases, marketAliases } = require('../nlp/entities');
+const axios = require('axios');
 
-function classifyIntent(message) {
+const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
+const HUGGINGFACE_MODEL = process.env.HUGGINGFACE_MODEL || 'facebook/bart-large-mnli';
+const HUGGINGFACE_API_URL = `https://api-inference.huggingface.co/models/${HUGGINGFACE_MODEL}`;
+
+function classifyIntentWithRegex(message) {
   const text = message.toLowerCase().trim();
 
-  for (const [key, intent] of Object.entries(intents)) {
+  for (const intent of Object.values(intents)) {
     for (const pattern of intent.patterns) {
       if (pattern.test(text)) {
         return intent.name;
@@ -13,6 +18,63 @@ function classifyIntent(message) {
   }
 
   return 'unknown';
+}
+
+async function classifyIntent(message) {
+  if (!HUGGINGFACE_API_KEY) {
+    return classifyIntentWithRegex(message);
+  }
+
+  try {
+    const candidateLabels = Object.values(intents).map((intent) => intent.name);
+
+    const response = await axios.post(
+      HUGGINGFACE_API_URL,
+      {
+        inputs: message,
+        parameters: {
+          candidate_labels: candidateLabels,
+          multi_label: false,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${HUGGINGFACE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      }
+    );
+
+    const data = response.data;
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (
+      result &&
+      Array.isArray(result.labels) &&
+      Array.isArray(result.scores) &&
+      result.labels.length > 0
+    ) {
+      const topLabel = result.labels[0];
+      const topScore = result.scores[0];
+
+      if (typeof topScore === 'number' && topScore < 0.5) {
+        return classifyIntentWithRegex(message);
+      }
+
+      if (candidateLabels.includes(topLabel)) {
+        return topLabel;
+      }
+    }
+
+    return classifyIntentWithRegex(message);
+  } catch (err) {
+    console.error(
+      'Hugging Face intent classification failed, using regex fallback:',
+      err.message || err
+    );
+    return classifyIntentWithRegex(message);
+  }
 }
 
 function extractCrop(message) {
@@ -53,12 +115,12 @@ function extractMarket(message) {
   return null;
 }
 
-function parseMessage(message) {
+async function parseMessage(message) {
   return {
-    intent: classifyIntent(message),
+    intent: await classifyIntent(message),
     crop: extractCrop(message),
     market: extractMarket(message),
-    raw: message
+    raw: message,
   };
 }
 

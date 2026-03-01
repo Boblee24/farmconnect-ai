@@ -61,8 +61,8 @@ async function processMessage(phone, message) {
     return handleRegistrationFlow(phone, message, session, language);
   }
 
-  // Parse intent and entities
-  const parsed = parseMessage(message);
+  // Parse intent and entities (AI + regex fallback)
+  const parsed = await parseMessage(message);
   console.log(`🧠 Intent: ${parsed.intent} | Crop: ${parsed.crop} | Market: ${parsed.market}`);
 
   switch (parsed.intent) {
