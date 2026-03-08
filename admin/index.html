@@ -1,577 +1,1474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FarmConnect AI — Admin</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FarmConnect AI — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0a;
+    --surface: #141710;
+    --card: #1a1e14;
+    --border: #252b1e;
+    --border-bright: #3a4530;
+    --leaf: #4a8c3f;
+    --lime: #7bc67a;
+    --mist: #c8e6c4;
+    --cream: #f5f0e8;
+    --wheat: #e8d5a3;
+    --clay: #8b6f4e;
+    --red: #c0392b;
+    --red-soft: #e74c3c;
+    --amber: #d4a017;
+    --text: #c8d4c0;
+    --text-dim: #6b7a62;
+    --text-bright: #e8f0e0;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Fraunces', serif;
+  }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f1117;
-      color: #e2e8f0;
-      min-height: 100vh;
-    }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    header {
-      background: #1a1f2e;
-      border-bottom: 1px solid #2d3748;
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+  }
 
-    header h1 {
-      font-size: 20px;
-      color: #48bb78;
-      font-weight: 700;
-    }
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
 
-    header span {
-      background: #2d3748;
-      color: #a0aec0;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-    }
+  .sidebar-logo {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
 
-    .container { padding: 32px; max-width: 1400px; margin: 0 auto; }
+  .sidebar-logo h1 {
+    font-family: var(--display);
+    font-size: 17px;
+    color: var(--lime);
+    font-weight: 700;
+    line-height: 1.2;
+  }
 
-    /* Stats */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
+  .sidebar-logo span {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
 
-    .stat-card {
-      background: #1a1f2e;
-      border: 1px solid #2d3748;
-      border-radius: 12px;
-      padding: 20px;
-    }
+  .nav-section {
+    padding: 16px 12px 8px;
+  }
 
-    .stat-card .label {
-      font-size: 12px;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
+  .nav-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
 
-    .stat-card .value {
-      font-size: 32px;
-      font-weight: 700;
-      color: #48bb78;
-    }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-weight: 500;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    margin-bottom: 2px;
+  }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 24px;
-      background: #1a1f2e;
-      padding: 4px;
-      border-radius: 10px;
-      width: fit-content;
-    }
+  .nav-item:hover { background: var(--card); color: var(--text); }
 
-    .tab {
-      padding: 8px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      color: #718096;
-      border: none;
-      background: none;
-      transition: all 0.2s;
-    }
+  .nav-item.active {
+    background: rgba(74, 140, 63, 0.12);
+    color: var(--lime);
+    border-color: rgba(74, 140, 63, 0.2);
+  }
 
-    .tab.active {
-      background: #48bb78;
-      color: #0f1117;
-      font-weight: 600;
-    }
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
 
-    /* Panels */
-    .panel { display: none; }
-    .panel.active { display: block; }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
 
-    /* Table */
-    .table-wrap {
-      background: #1a1f2e;
-      border: 1px solid #2d3748;
-      border-radius: 12px;
-      overflow: hidden;
-    }
+  .sync-btn {
+    width: 100%;
+    background: var(--leaf);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
 
-    .table-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid #2d3748;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  .sync-btn:hover { background: #5aa04e; transform: translateY(-1px); }
+  .sync-btn:active { transform: translateY(0); }
+  .sync-btn.loading { opacity: 0.7; cursor: not-allowed; }
 
-    .table-header h2 { font-size: 16px; font-weight: 600; }
+  /* Main content */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    min-height: 100vh;
+  }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+  .topbar {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 50;
+  }
 
-    th {
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 12px;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: #161b27;
-    }
+  .page-title {
+    font-family: var(--display);
+    font-size: 22px;
+    color: var(--text-bright);
+    font-weight: 700;
+  }
 
-    td {
-      padding: 12px 16px;
-      border-top: 1px solid #2d3748;
-      font-size: 14px;
-    }
+  .page-subtitle {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
 
-    tr:hover td { background: #1e2535; }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74, 140, 63, 0.1);
+    border: 1px solid rgba(74, 140, 63, 0.25);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--lime);
+  }
 
-    .trend-up { color: #48bb78; font-weight: 600; }
-    .trend-down { color: #fc8181; font-weight: 600; }
-    .trend-stable { color: #f6ad55; font-weight: 600; }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--lime);
+    animation: pulse 2s infinite;
+  }
 
-    .badge {
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
 
-    .badge-green { background: #1a3a2a; color: #48bb78; }
-    .badge-blue { background: #1a2a3a; color: #63b3ed; }
-    .badge-orange { background: #3a2a1a; color: #f6ad55; }
+  .content { padding: 28px 32px; }
 
-    /* Form */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      padding: 20px;
-      background: #161b27;
-      border-top: 1px solid #2d3748;
-    }
+  /* Tabs */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
 
-    .form-group label {
-      font-size: 12px;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
 
-    .form-group select,
-    .form-group input {
-      background: #1a1f2e;
-      border: 1px solid #2d3748;
-      color: #e2e8f0;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
+  .stat-card:hover { border-color: var(--border-bright); }
 
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--leaf), var(--lime));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
 
-    .btn-green { background: #48bb78; color: #0f1117; }
-    .btn-green:hover { background: #38a169; }
-    .btn-small {
-      padding: 4px 12px;
-      font-size: 12px;
-      background: #2d3748;
-      color: #e2e8f0;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-small:hover { background: #4a5568; }
+  .stat-card:hover::before { opacity: 1; }
 
-    .form-actions {
-      display: flex;
-      align-items: flex-end;
-      padding-bottom: 2px;
-    }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
 
-    /* Edit inline */
-    .editable {
-      background: transparent;
-      border: 1px solid transparent;
-      color: #e2e8f0;
-      padding: 4px 8px;
-      border-radius: 6px;
-      width: 80px;
-      font-size: 14px;
-    }
+  .stat-value {
+    font-family: var(--display);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--text-bright);
+    line-height: 1;
+  }
 
-    .editable:focus {
-      border-color: #48bb78;
-      background: #1a1f2e;
-      outline: none;
-    }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
 
-    select.editable { width: 100px; }
+  .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 22px;
+    opacity: 0.2;
+  }
 
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #48bb78;
-      color: #0f1117;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 14px;
-      display: none;
-      z-index: 999;
-    }
-  </style>
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 16px;
+    color: var(--text-bright);
+    font-weight: 700;
+  }
+
+  /* Table */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .table-toolbar {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .search-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    flex: 1;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { outline: none; border-color: var(--leaf); }
+  .search-input::placeholder { color: var(--text-dim); }
+
+  select.search-input { cursor: pointer; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.015); }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .badge-rising { background: rgba(192, 57, 43, 0.15); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+  .badge-falling { background: rgba(52, 152, 219, 0.15); color: #5dade2; border: 1px solid rgba(52,152,219,0.3); }
+  .badge-stable { background: rgba(74, 140, 63, 0.12); color: var(--lime); border: 1px solid rgba(74,140,63,0.25); }
+  .badge-manual { background: rgba(212, 160, 23, 0.12); color: var(--amber); border: 1px solid rgba(212,160,23,0.25); }
+  .badge-wfp { background: rgba(74, 140, 63, 0.12); color: var(--lime); border: 1px solid rgba(74,140,63,0.25); }
+  .badge-verified { background: rgba(74, 140, 63, 0.12); color: var(--lime); border: 1px solid rgba(74,140,63,0.25); }
+
+  /* Editable price cell */
+  .price-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .price-input {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 13px;
+    width: 90px;
+    transition: all 0.15s;
+  }
+
+  .price-input:hover { border-color: var(--border-bright); background: var(--surface); }
+  .price-input:focus { outline: none; border-color: var(--leaf); background: var(--surface); }
+
+  .save-btn {
+    background: var(--leaf);
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s;
+    font-family: var(--sans);
+  }
+
+  .price-input:focus ~ .save-btn,
+  .save-btn:focus { opacity: 1; }
+
+  tr:has(.price-input:focus) .save-btn { opacity: 1; }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary { background: var(--leaf); color: white; }
+  .btn-primary:hover { background: #5aa04e; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); }
+
+  .btn-danger { background: rgba(192,57,43,0.15); color: var(--red-soft); border: 1px solid rgba(192,57,43,0.3); }
+  .btn-danger:hover { background: rgba(192,57,43,0.25); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border-bright);
+    border-radius: 16px;
+    padding: 28px;
+    width: 420px;
+    max-width: 90vw;
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-family: var(--display);
+    font-size: 18px;
+    color: var(--text-bright);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text-bright);
+    font-family: var(--sans);
+    font-size: 13px;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { outline: none; border-color: var(--leaf); }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--card);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-bright);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 300;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    max-width: 300px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(74,140,63,0.4); }
+  .toast.error { border-color: rgba(192,57,43,0.4); }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-dim);
+  }
+
+  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+  /* Loading spinner */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Conversations */
+  .conv-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 130px 80px 1fr 100px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .conv-item:last-child { border-bottom: none; }
+  .conv-item:hover { background: rgba(255,255,255,0.015); }
+
+  .conv-phone {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--lime);
+  }
+
+  .conv-intent {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .conv-msg { font-size: 13px; color: var(--text); line-height: 1.4; }
+
+  .conv-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: right;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .page-info {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .page-btns { display: flex; gap: 6px; }
+
+  .page-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: var(--text-dim);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--sans);
+  }
+
+  .page-btn:hover:not(:disabled) { border-color: var(--leaf); color: var(--lime); }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Country flag */
+  .flag { font-size: 14px; }
+</style>
 </head>
 <body>
 
-<header>
-  <span>🌾</span>
-  <h1>FarmConnect AI</h1>
-  <span>Admin Dashboard</span>
-</header>
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>🌾 FarmConnect</h1>
+    <span>Admin Console</span>
+  </div>
 
-<div class="container">
-
-  <!-- Stats -->
-  <div class="stats" id="stats">
-    <div class="stat-card">
-      <div class="label">Registered Farmers</div>
-      <div class="value" id="stat-farmers">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Messages Today</div>
-      <div class="value" id="stat-messages">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Price Entries</div>
-      <div class="value" id="stat-prices">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Verified Buyers</div>
-      <div class="value" id="stat-buyers">—</div>
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">
+      <span class="icon">📊</span> Dashboard
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('prices')">💰 Prices</button>
-    <button class="tab" onclick="switchTab('farmers')">👨‍🌾 Farmers</button>
-    <button class="tab" onclick="switchTab('buyers')">🛒 Buyers</button>
+  <div class="nav-section">
+    <div class="nav-label">Data</div>
+    <div class="nav-item" onclick="switchTab('prices', this)">
+      <span class="icon">💰</span> Prices
+    </div>
+    <div class="nav-item" onclick="switchTab('buyers', this)">
+      <span class="icon">🛒</span> Buyers
+    </div>
+    <div class="nav-item" onclick="switchTab('farmers', this)">
+      <span class="icon">👤</span> Farmers
+    </div>
   </div>
 
-  <!-- Prices Panel -->
-  <div class="panel active" id="panel-prices">
-    <div class="table-wrap">
-      <div class="table-header">
-        <h2>Crop Prices</h2>
-        <span style="font-size:13px;color:#718096">Click price or trend to edit inline</span>
+  <div class="nav-section">
+    <div class="nav-label">Activity</div>
+    <div class="nav-item" onclick="switchTab('conversations', this)">
+      <span class="icon">💬</span> Conversations
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="sync-btn" id="syncBtn" onclick="triggerSync()">
+      <span>🔄</span> Sync Prices
+    </button>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="page-subtitle" id="pageSubtitle">Overview of your platform</div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span>System Online</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD TAB -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👤</div>
+          <div class="stat-label">Registered Farmers</div>
+          <div class="stat-value" id="stat-farmers">—</div>
+          <div class="stat-sub">Total signups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Price Entries</div>
+          <div class="stat-value" id="stat-prices">—</div>
+          <div class="stat-sub">Across all markets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-label">Verified Buyers</div>
+          <div class="stat-value" id="stat-buyers">—</div>
+          <div class="stat-sub">Active listings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-label">Messages Today</div>
+          <div class="stat-value" id="stat-messages">—</div>
+          <div class="stat-sub">Conversations</div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Crop</th>
-            <th>Market</th>
-            <th>State</th>
-            <th>Country</th>
-            <th>Price (₦/kg)</th>
-            <th>Trend</th>
-            <th>Last Updated</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="prices-table">
-          <tr><td colspan="8" style="text-align:center;color:#718096;padding:32px">Loading...</td></tr>
-        </tbody>
-      </table>
 
-      <!-- Add Price Form -->
-      <div class="form-grid" id="add-price-form">
-        <div class="form-group">
-          <label>Crop</label>
-          <select id="new-crop-id"></select>
+      <!-- Recent conversations preview -->
+      <div class="section-header">
+        <div class="section-title">Recent Activity</div>
+        <button class="btn btn-ghost" onclick="switchTab('conversations', document.querySelector('.nav-item:nth-child(2)'))">
+          View all →
+        </button>
+      </div>
+      <div class="table-wrap">
+        <div id="recentConvs">
+          <div class="empty"><div class="empty-icon">💬</div>Loading conversations...</div>
         </div>
-        <div class="form-group">
-          <label>Market</label>
-          <select id="new-market-id"></select>
-        </div>
-        <div class="form-group">
-          <label>Price (₦ per kg)</label>
-          <input type="number" id="new-price" placeholder="e.g. 450" />
-        </div>
-        <div class="form-group">
-          <label>Trend</label>
-          <select id="new-trend">
-            <option value="stable">➡️ Stable</option>
-            <option value="up">📈 Up</option>
-            <option value="down">📉 Down</option>
+      </div>
+    </div>
+
+    <!-- PRICES TAB -->
+    <div class="tab-panel" id="tab-prices">
+      <div class="section-header">
+        <div class="section-title">Market Prices</div>
+        <button class="btn btn-primary" onclick="openAddPrice()">+ Add Price</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" id="priceSearch" placeholder="Search crop or market..." oninput="filterPrices()">
+          <select class="search-input" id="countryFilter" onchange="filterPrices()" style="width:140px">
+            <option value="">All countries</option>
+            <option value="Nigeria">🇳🇬 Nigeria</option>
+            <option value="Ghana">🇬🇭 Ghana</option>
+            <option value="Kenya">🇰🇪 Kenya</option>
+          </select>
+          <select class="search-input" id="sourceFilter" onchange="filterPrices()" style="width:130px">
+            <option value="">All sources</option>
+            <option value="manual">Manual</option>
+            <option value="hdx_wfp">WFP/HDX</option>
           </select>
         </div>
-        <div class="form-actions">
-          <button class="btn btn-green" onclick="addPrice()">+ Add Price</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Crop</th>
+              <th>Market</th>
+              <th>Country</th>
+              <th>Price / kg</th>
+              <th>Trend</th>
+              <th>Source</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pricesTable">
+            <tr><td colspan="8"><div class="empty"><div class="spinner"></div></div></td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <div class="page-info" id="pricePageInfo">—</div>
+          <div class="page-btns">
+            <button class="page-btn" id="pricePrev" onclick="changePricePage(-1)" disabled>← Prev</button>
+            <button class="page-btn" id="priceNext" onclick="changePricePage(1)" disabled>Next →</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Farmers Panel -->
-  <div class="panel" id="panel-farmers">
-    <div class="table-wrap">
-      <div class="table-header">
-        <h2>Registered Farmers</h2>
+    <!-- BUYERS TAB -->
+    <div class="tab-panel" id="tab-buyers">
+      <div class="section-header">
+        <div class="section-title">Verified Buyers</div>
+        <button class="btn btn-primary" onclick="openAddBuyer()">+ Add Buyer</button>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Location</th>
-            <th>Crops</th>
-            <th>Language</th>
-            <th>Queries</th>
-            <th>Subscribed</th>
-            <th>Joined</th>
-          </tr>
-        </thead>
-        <tbody id="farmers-table">
-          <tr><td colspan="8" style="text-align:center;color:#718096;padding:32px">Loading...</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" id="buyerSearch" placeholder="Search buyers..." oninput="filterBuyers()">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Type</th>
+              <th>Crops</th>
+              <th>Regions</th>
+              <th>Min / Max</th>
+              <th>Rating</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="buyersTable">
+            <tr><td colspan="8"><div class="empty"><div class="spinner"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FARMERS TAB -->
+    <div class="tab-panel" id="tab-farmers">
+      <div class="section-header">
+        <div class="section-title">Registered Farmers</div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" id="farmerSearch" placeholder="Search farmers..." oninput="filterFarmers()">
+          <select class="search-input" id="langFilter" onchange="filterFarmers()" style="width:140px">
+            <option value="">All languages</option>
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="yo">Yoruba</option>
+            <option value="ig">Igbo</option>
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Phone</th>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Crops</th>
+              <th>Language</th>
+              <th>Queries Today</th>
+              <th>Subscribed</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody id="farmersTable">
+            <tr><td colspan="8"><div class="empty"><div class="spinner"></div></div></td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <div class="page-info" id="farmerPageInfo">—</div>
+          <div class="page-btns">
+            <button class="page-btn" id="farmerPrev" onclick="changeFarmerPage(-1)" disabled>← Prev</button>
+            <button class="page-btn" id="farmerNext" onclick="changeFarmerPage(1)" disabled>Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONVERSATIONS TAB -->
+    <div class="tab-panel" id="tab-conversations">
+      <div class="section-header">
+        <div class="section-title">Conversation Logs</div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" id="convSearch" placeholder="Search messages..." oninput="filterConversations()">
+          <select class="search-input" id="intentFilter" onchange="filterConversations()" style="width:160px">
+            <option value="">All intents</option>
+            <option value="price_check">price_check</option>
+            <option value="buyer_search">buyer_search</option>
+            <option value="register">register</option>
+            <option value="help">help</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </div>
+        <div id="convsContainer">
+          <div class="conv-item" style="border-bottom:1px solid var(--border); padding:10px 16px; background:var(--surface)">
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);text-transform:uppercase">Phone</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);text-transform:uppercase">Intent</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);text-transform:uppercase">Message</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);text-transform:uppercase;text-align:right">Time</span>
+          </div>
+          <div id="convsList">
+            <div class="empty"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="pagination">
+          <div class="page-info" id="convPageInfo">—</div>
+          <div class="page-btns">
+            <button class="page-btn" id="convPrev" onclick="changeConvPage(-1)" disabled>← Prev</button>
+            <button class="page-btn" id="convNext" onclick="changeConvPage(1)" disabled>Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Add Price Modal -->
+<div class="modal-overlay" id="priceModal">
+  <div class="modal">
+    <div class="modal-title">Add / Update Price</div>
+    <input type="hidden" id="priceId">
+    <div class="form-group">
+      <label class="form-label">Crop *</label>
+      <select class="form-input" id="priceCrop">
+        <option value="">Select crop</option>
+        <option>Maize</option><option>Rice</option><option>Yam</option>
+        <option>Cassava</option><option>Tomato</option><option>Onion</option>
+        <option>Sorghum</option><option>Cowpea</option><option>Groundnut</option>
+        <option>Plantain</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Market *</label>
+      <select class="form-input" id="priceMarket"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Price per KG *</label>
+      <input class="form-input" type="number" id="priceValue" placeholder="e.g. 320">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Trend</label>
+      <select class="form-input" id="priceTrend">
+        <option value="stable">Stable ➡️</option>
+        <option value="rising">Rising 📈</option>
+        <option value="falling">Falling 📉</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('priceModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePrice()">Save Price</button>
     </div>
   </div>
-
-  <!-- Buyers Panel -->
-  <div class="panel" id="panel-buyers">
-    <div class="table-wrap">
-      <div class="table-header">
-        <h2>Verified Buyers</h2>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Company</th>
-            <th>Type</th>
-            <th>Crops</th>
-            <th>Locations</th>
-            <th>Min Qty</th>
-            <th>Max Qty</th>
-            <th>Rating</th>
-            <th>Phone</th>
-          </tr>
-        </thead>
-        <tbody id="buyers-table">
-          <tr><td colspan="9" style="text-align:center;color:#718096;padding:32px">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
 </div>
 
+<!-- Add Buyer Modal -->
+<div class="modal-overlay" id="buyerModal">
+  <div class="modal">
+    <div class="modal-title">Add Buyer</div>
+    <div class="form-group">
+      <label class="form-label">Company Name *</label>
+      <input class="form-input" id="buyerName" placeholder="e.g. North Grain Export Co">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone Number *</label>
+      <input class="form-input" id="buyerPhone" placeholder="+2347012345678">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Buyer Type</label>
+      <select class="form-input" id="buyerType">
+        <option value="aggregator">Aggregator</option>
+        <option value="exporter">Exporter</option>
+        <option value="processor">Processor</option>
+        <option value="retailer">Retailer</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Crops (comma separated)</label>
+      <input class="form-input" id="buyerCrops" placeholder="Maize, Rice, Groundnut">
+    </div>
+    <div class="form-group">
+      <label class="form-label">States / Regions (comma separated)</label>
+      <input class="form-input" id="buyerStates" placeholder="Kano, Kaduna, Sokoto">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('buyerModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBuyer()">Save Buyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-  const API = 'http://localhost:3000/api/admin';
+  // ─── CONFIG ───────────────────────────────────────────────────────────────
+  const API = window.location.origin; // Uses same origin as the server
 
-  // ── Init ──────────────────────────────────────────────
+  // ─── STATE ────────────────────────────────────────────────────────────────
+  let allPrices = [], allFarmers = [], allBuyers = [], allConvs = [];
+  let filteredPrices = [], filteredFarmers = [], filteredConvs = [];
+  let priceLimit = 20, priceOffset = 0;
+  let farmerLimit = 20, farmerOffset = 0;
+  let convLimit = 30, convOffset = 0;
+  let markets = [];
+
+  // ─── INIT ─────────────────────────────────────────────────────────────────
   async function init() {
-    await Promise.all([
-      loadStats(),
-      loadPrices(),
-      loadCropsAndMarkets()
-    ]);
+    await loadStats();
+    await loadMarkets();
+    await loadRecentConversations();
   }
 
-  // ── Stats ─────────────────────────────────────────────
+  // ─── API HELPERS ──────────────────────────────────────────────────────────
+  async function apiFetch(path, opts = {}) {
+    try {
+      const res = await fetch(API + path, {
+        headers: { 'Content-Type': 'application/json', ...opts.headers },
+        ...opts,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      showToast('API error: ' + err.message, 'error');
+      throw err;
+    }
+  }
+
+  // ─── STATS ────────────────────────────────────────────────────────────────
   async function loadStats() {
-    const res = await fetch(`${API}/stats`);
-    const data = await res.json();
-    document.getElementById('stat-farmers').textContent = data.total_farmers;
-    document.getElementById('stat-messages').textContent = data.messages_today;
-    document.getElementById('stat-prices').textContent = data.total_prices;
-    document.getElementById('stat-buyers').textContent = data.verified_buyers;
+    try {
+      const data = await apiFetch('/admin/stats');
+      document.getElementById('stat-farmers').textContent = data.farmers ?? '—';
+      document.getElementById('stat-prices').textContent = data.prices ?? '—';
+      document.getElementById('stat-buyers').textContent = data.buyers ?? '—';
+      document.getElementById('stat-messages').textContent = data.messagesToday ?? '—';
+    } catch {}
   }
 
-  // ── Prices ────────────────────────────────────────────
+  // ─── MARKETS ──────────────────────────────────────────────────────────────
+  async function loadMarkets() {
+    try {
+      const data = await apiFetch('/admin/markets');
+      markets = data.markets || data || [];
+      const sel = document.getElementById('priceMarket');
+      sel.innerHTML = '<option value="">Select market</option>';
+      markets.forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id;
+        o.textContent = `${m.name} (${m.country})`;
+        sel.appendChild(o);
+      });
+    } catch {}
+  }
+
+  // ─── PRICES ───────────────────────────────────────────────────────────────
   async function loadPrices() {
-    const res = await fetch(`${API}/prices`);
-    const prices = await res.json();
-    const tbody = document.getElementById('prices-table');
-
-    tbody.innerHTML = prices.map(p => `
-      <tr>
-        <td><span class="badge badge-green">${p.crop_name}</span></td>
-        <td>${p.market_name}</td>
-        <td>${p.state}</td>
-        <td>${p.country}</td>
-        <td>
-          <input class="editable" type="number" value="${p.price_per_unit}" id="price-${p.id}" />
-        </td>
-        <td>
-          <select class="editable" id="trend-${p.id}">
-            <option value="stable" ${p.trend==='stable'?'selected':''}>➡️ Stable</option>
-            <option value="up" ${p.trend==='up'?'selected':''}>📈 Up</option>
-            <option value="down" ${p.trend==='down'?'selected':''}>📉 Down</option>
-          </select>
-        </td>
-        <td style="color:#718096;font-size:12px">${new Date(p.recorded_at).toLocaleDateString('en-NG')}</td>
-        <td><button class="btn-small" onclick="updatePrice('${p.id}')">Save</button></td>
-      </tr>
-    `).join('');
-  }
-
-  async function updatePrice(id) {
-    const price = document.getElementById(`price-${id}`).value;
-    const trend = document.getElementById(`trend-${id}`).value;
-
-    const res = await fetch(`${API}/prices/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ price_per_unit: price, trend })
-    });
-
-    if (res.ok) {
-      showToast('✅ Price updated!');
-      loadStats();
-    } else {
-      showToast('❌ Update failed');
+    try {
+      const data = await apiFetch(`/admin/prices?limit=500`);
+      allPrices = data.prices || data || [];
+      filteredPrices = [...allPrices];
+      renderPrices();
+    } catch {
+      document.getElementById('pricesTable').innerHTML =
+        '<tr><td colspan="8"><div class="empty">Failed to load prices</div></td></tr>';
     }
   }
 
-  async function addPrice() {
-    const crop_id = document.getElementById('new-crop-id').value;
-    const market_id = document.getElementById('new-market-id').value;
-    const price_per_unit = document.getElementById('new-price').value;
-    const trend = document.getElementById('new-trend').value;
+  function filterPrices() {
+    const q = document.getElementById('priceSearch').value.toLowerCase();
+    const country = document.getElementById('countryFilter').value;
+    const source = document.getElementById('sourceFilter').value;
+    priceOffset = 0;
+    filteredPrices = allPrices.filter(p => {
+      const matchQ = !q || p.crop_name?.toLowerCase().includes(q) || p.market_name?.toLowerCase().includes(q);
+      const matchC = !country || p.country === country;
+      const matchS = !source || p.source === source;
+      return matchQ && matchC && matchS;
+    });
+    renderPrices();
+  }
 
-    if (!crop_id || !market_id || !price_per_unit) {
-      showToast('⚠️ Fill all fields');
+  function renderPrices() {
+    const tbody = document.getElementById('pricesTable');
+    const page = filteredPrices.slice(priceOffset, priceOffset + priceLimit);
+
+    if (!page.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">💰</div>No prices found</div></td></tr>';
+      document.getElementById('pricePageInfo').textContent = '0 results';
+      document.getElementById('pricePrev').disabled = true;
+      document.getElementById('priceNext').disabled = true;
       return;
     }
 
-    const res = await fetch(`${API}/prices`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ crop_id, market_id, price_per_unit, trend })
-    });
+    const flagMap = { Nigeria: '🇳🇬', Ghana: '🇬🇭', Kenya: '🇰🇪' };
+    const trendMap = {
+      rising: '<span class="badge badge-rising">📈 Rising</span>',
+      falling: '<span class="badge badge-falling">📉 Falling</span>',
+      stable: '<span class="badge badge-stable">➡️ Stable</span>',
+    };
 
-    if (res.ok) {
-      showToast('✅ Price added!');
-      loadPrices();
-      loadStats();
-      document.getElementById('new-price').value = '';
-    } else {
-      showToast('❌ Failed to add price');
-    }
-  }
-
-  async function loadCropsAndMarkets() {
-    const [crops, markets] = await Promise.all([
-      fetch(`${API}/crops`).then(r => r.json()),
-      fetch(`${API}/markets`).then(r => r.json())
-    ]);
-
-    document.getElementById('new-crop-id').innerHTML =
-      crops.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-    document.getElementById('new-market-id').innerHTML =
-      markets.map(m => `<option value="${m.id}">${m.name} (${m.state})</option>`).join('');
-  }
-
-  // ── Farmers ───────────────────────────────────────────
-  async function loadFarmers() {
-    const res = await fetch(`${API}/farmers`);
-    const farmers = await res.json();
-    const tbody = document.getElementById('farmers-table');
-
-    if (farmers.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#718096;padding:32px">No farmers registered yet</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = farmers.map(f => `
-      <tr>
-        <td>${f.name || '—'}</td>
-        <td style="color:#718096">${f.phone}</td>
-        <td>${f.location || '—'}</td>
-        <td>${f.crops ? f.crops.join(', ') : '—'}</td>
-        <td><span class="badge badge-blue">${f.language || 'en'}</span></td>
-        <td>${f.query_count || 0}</td>
-        <td>${f.is_subscribed
-          ? '<span class="badge badge-green">Yes</span>'
-          : '<span class="badge badge-orange">Free</span>'}</td>
-        <td style="color:#718096;font-size:12px">${new Date(f.created_at).toLocaleDateString('en-NG')}</td>
+    tbody.innerHTML = page.map(p => `
+      <tr data-id="${p.id}">
+        <td><strong style="color:var(--text-bright)">${p.crop_name || '—'}</strong></td>
+        <td>${p.market_name || '—'}</td>
+        <td><span class="flag">${flagMap[p.country] || ''}</span> ${p.country || '—'}</td>
+        <td>
+          <div class="price-cell">
+            <input class="price-input" type="number" value="${p.price_per_unit}"
+              id="price-${p.id}" onkeydown="if(event.key==='Enter') saveInlinePrice(${p.id}, this.value)">
+            <button class="save-btn" onclick="saveInlinePrice(${p.id}, document.getElementById('price-${p.id}').value)">Save</button>
+          </div>
+        </td>
+        <td>${trendMap[p.trend] || p.trend}</td>
+        <td><span class="badge ${p.source === 'manual' ? 'badge-manual' : 'badge-wfp'}">${p.source || 'manual'}</span></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${formatDate(p.updated_at)}</td>
+        <td>
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="editPrice(${JSON.stringify(p).replace(/"/g, '&quot;')})">Edit</button>
+        </td>
       </tr>
     `).join('');
+
+    const total = filteredPrices.length;
+    const from = priceOffset + 1;
+    const to = Math.min(priceOffset + priceLimit, total);
+    document.getElementById('pricePageInfo').textContent = `${from}–${to} of ${total}`;
+    document.getElementById('pricePrev').disabled = priceOffset === 0;
+    document.getElementById('priceNext').disabled = to >= total;
   }
 
-  // ── Buyers ────────────────────────────────────────────
+  function changePricePage(dir) {
+    priceOffset = Math.max(0, priceOffset + dir * priceLimit);
+    renderPrices();
+  }
+
+  async function saveInlinePrice(id, value) {
+    if (!value || isNaN(value)) return showToast('Invalid price', 'error');
+    try {
+      await apiFetch(`/admin/prices/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ price_per_unit: parseFloat(value), source: 'manual' }),
+      });
+      showToast('Price updated ✓', 'success');
+      const p = allPrices.find(x => x.id === id);
+      if (p) { p.price_per_unit = parseFloat(value); p.source = 'manual'; }
+    } catch {}
+  }
+
+  function editPrice(p) {
+    document.getElementById('priceId').value = p.id;
+    document.getElementById('priceCrop').value = p.crop_name;
+    document.getElementById('priceMarket').value = p.market_id;
+    document.getElementById('priceValue').value = p.price_per_unit;
+    document.getElementById('priceTrend').value = p.trend;
+    document.getElementById('priceModal').classList.add('open');
+  }
+
+  function openAddPrice() {
+    document.getElementById('priceId').value = '';
+    document.getElementById('priceValue').value = '';
+    document.getElementById('priceModal').classList.add('open');
+  }
+
+  async function savePrice() {
+    const id = document.getElementById('priceId').value;
+    const crop = document.getElementById('priceCrop').value;
+    const marketId = document.getElementById('priceMarket').value;
+    const price = document.getElementById('priceValue').value;
+    const trend = document.getElementById('priceTrend').value;
+
+    if (!crop || !marketId || !price) return showToast('Please fill all required fields', 'error');
+
+    try {
+      if (id) {
+        await apiFetch(`/admin/prices/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ price_per_unit: parseFloat(price), trend, source: 'manual' }),
+        });
+      } else {
+        await apiFetch('/admin/prices', {
+          method: 'POST',
+          body: JSON.stringify({ crop_name: crop, market_id: parseInt(marketId), price_per_unit: parseFloat(price), trend, source: 'manual' }),
+        });
+      }
+      showToast('Price saved ✓', 'success');
+      closeModal('priceModal');
+      await loadPrices();
+    } catch {}
+  }
+
+  // ─── BUYERS ───────────────────────────────────────────────────────────────
   async function loadBuyers() {
-    const res = await fetch(`${API}/buyers`);
-    const buyers = await res.json();
-    const tbody = document.getElementById('buyers-table');
+    try {
+      const data = await apiFetch('/admin/buyers');
+      allBuyers = data.buyers || data || [];
+      renderBuyers(allBuyers);
+    } catch {
+      document.getElementById('buyersTable').innerHTML =
+        '<tr><td colspan="8"><div class="empty">Failed to load buyers</div></td></tr>';
+    }
+  }
+
+  function filterBuyers() {
+    const q = document.getElementById('buyerSearch').value.toLowerCase();
+    renderBuyers(allBuyers.filter(b =>
+      !q || b.name?.toLowerCase().includes(q) || b.company?.toLowerCase().includes(q)
+    ));
+  }
+
+  function renderBuyers(buyers) {
+    const tbody = document.getElementById('buyersTable');
+    if (!buyers.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">🛒</div>No buyers found</div></td></tr>';
+      return;
+    }
 
     tbody.innerHTML = buyers.map(b => `
       <tr>
-        <td>${b.name}</td>
-        <td>${b.company || '—'}</td>
-        <td><span class="badge badge-blue">${b.buyer_type}</span></td>
-        <td>${b.crops ? b.crops.join(', ') : '—'}</td>
-        <td>${b.states ? b.states.join(', ') : '—'}</td>
-        <td>${b.min_quantity}${b.unit}</td>
-        <td>${b.max_quantity}${b.unit}</td>
-        <td>⭐ ${b.rating}</td>
-        <td style="color:#718096">${b.phone || '—'}</td>
+        <td>
+          <strong style="color:var(--text-bright)">${b.company || b.name || '—'}</strong>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--lime);margin-top:2px">${b.phone || '—'}</div>
+        </td>
+        <td><span class="badge badge-manual">${b.buyer_type || '—'}</span></td>
+        <td style="font-size:12px">${(b.crops || []).join(', ') || '—'}</td>
+        <td style="font-size:12px">${(b.states || b.regions || []).join(', ') || '—'}</td>
+        <td style="font-family:var(--mono);font-size:11px">
+          ${b.min_quantity_kg || '?'}kg – ${b.max_quantity_kg || '?'}kg
+        </td>
+        <td style="font-family:var(--mono);font-size:12px;color:var(--amber)">
+          ⭐ ${b.rating || '—'}
+        </td>
+        <td>
+          <span class="badge ${b.is_verified ? 'badge-verified' : 'badge-manual'}">
+            ${b.is_verified ? '✓ Verified' : 'Unverified'}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="toggleVerify(${b.id}, ${b.is_verified})">
+            ${b.is_verified ? 'Unverify' : 'Verify'}
+          </button>
+        </td>
       </tr>
     `).join('');
   }
 
-  // ── Tabs ──────────────────────────────────────────────
-  function switchTab(tab) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-    document.getElementById(`panel-${tab}`).classList.add('active');
-    event.target.classList.add('active');
-
-    if (tab === 'farmers') loadFarmers();
-    if (tab === 'buyers') loadBuyers();
+  function openAddBuyer() {
+    document.getElementById('buyerModal').classList.add('open');
   }
 
-  // ── Toast ─────────────────────────────────────────────
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.style.display = 'block';
-    setTimeout(() => toast.style.display = 'none', 3000);
+  async function saveBuyer() {
+    const name = document.getElementById('buyerName').value;
+    const phone = document.getElementById('buyerPhone').value;
+    const type = document.getElementById('buyerType').value;
+    const crops = document.getElementById('buyerCrops').value.split(',').map(s => s.trim()).filter(Boolean);
+    const states = document.getElementById('buyerStates').value.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (!name || !phone) return showToast('Name and phone are required', 'error');
+
+    try {
+      await apiFetch('/admin/buyers', {
+        method: 'POST',
+        body: JSON.stringify({ name, company: name, phone, buyer_type: type, crops, states, is_verified: true }),
+      });
+      showToast('Buyer added ✓', 'success');
+      closeModal('buyerModal');
+      await loadBuyers();
+    } catch {}
   }
 
+  async function toggleVerify(id, current) {
+    try {
+      await apiFetch(`/admin/buyers/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_verified: !current }),
+      });
+      showToast('Buyer updated ✓', 'success');
+      await loadBuyers();
+    } catch {}
+  }
+
+  // ─── FARMERS ──────────────────────────────────────────────────────────────
+  async function loadFarmers() {
+    try {
+      const data = await apiFetch(`/admin/farmers?limit=500`);
+      allFarmers = data.farmers || data || [];
+      filteredFarmers = [...allFarmers];
+      renderFarmers();
+    } catch {
+      document.getElementById('farmersTable').innerHTML =
+        '<tr><td colspan="8"><div class="empty">Failed to load farmers</div></td></tr>';
+    }
+  }
+
+  function filterFarmers() {
+    const q = document.getElementById('farmerSearch').value.toLowerCase();
+    const lang = document.getElementById('langFilter').value;
+    farmerOffset = 0;
+    filteredFarmers = allFarmers.filter(f => {
+      const matchQ = !q || f.name?.toLowerCase().includes(q) || f.phone?.includes(q) || f.state?.toLowerCase().includes(q);
+      const matchL = !lang || f.language === lang;
+      return matchQ && matchL;
+    });
+    renderFarmers();
+  }
+
+  function renderFarmers() {
+    const tbody = document.getElementById('farmersTable');
+    const page = filteredFarmers.slice(farmerOffset, farmerOffset + farmerLimit);
+
+    if (!page.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">👤</div>No farmers found</div></td></tr>';
+      document.getElementById('farmerPageInfo').textContent = '0 results';
+      document.getElementById('farmerPrev').disabled = true;
+      document.getElementById('farmerNext').disabled = true;
+      return;
+    }
+
+    const langMap = { en: 'English', ha: 'Hausa', yo: 'Yoruba', ig: 'Igbo' };
+
+    tbody.innerHTML = page.map(f => `
+      <tr>
+        <td style="font-family:var(--mono);font-size:12px;color:var(--lime)">${f.phone || '—'}</td>
+        <td><strong style="color:var(--text-bright)">${f.name || 'Not registered'}</strong></td>
+        <td>${f.state || f.location || '—'}${f.country ? ', ' + f.country : ''}</td>
+        <td style="font-size:12px">${(f.crops || []).join(', ') || '—'}</td>
+        <td><span class="badge badge-stable">${langMap[f.language] || f.language || 'en'}</span></td>
+        <td style="font-family:var(--mono);font-size:12px;text-align:center">${f.query_count ?? 0}</td>
+        <td>
+          <span class="badge ${f.is_subscribed ? 'badge-verified' : 'badge-manual'}">
+            ${f.is_subscribed ? '⭐ Pro' : 'Free'}
+          </span>
+        </td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${formatDate(f.created_at)}</td>
+      </tr>
+    `).join('');
+
+    const total = filteredFarmers.length;
+    const from = farmerOffset + 1;
+    const to = Math.min(farmerOffset + farmerLimit, total);
+    document.getElementById('farmerPageInfo').textContent = `${from}–${to} of ${total}`;
+    document.getElementById('farmerPrev').disabled = farmerOffset === 0;
+    document.getElementById('farmerNext').disabled = to >= total;
+  }
+
+  function changeFarmerPage(dir) {
+    farmerOffset = Math.max(0, farmerOffset + dir * farmerLimit);
+    renderFarmers();
+  }
+
+  // ─── CONVERSATIONS ────────────────────────────────────────────────────────
+  async function loadConversations() {
+    try {
+      const data = await apiFetch(`/admin/conversations?limit=200`);
+      allConvs = data.conversations || data || [];
+      filteredConvs = [...allConvs];
+      renderConversations();
+    } catch {
+      document.getElementById('convsList').innerHTML = '<div class="empty">Failed to load conversations</div>';
+    }
+  }
+
+  async function loadRecentConversations() {
+    try {
+      const data = await apiFetch('/admin/conversations?limit=5');
+      const convs = data.conversations || data || [];
+      const container = document.getElementById('recentConvs');
+
+      if (!convs.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">💬</div>No conversations yet</div>';
+        return;
+      }
+
+      container.innerHTML = convs.map(c => `
+        <div class="conv-item">
+          <span class="conv-phone">${maskPhone(c.phone)}</span>
+          <span class="conv-intent">${c.intent || '—'}</span>
+          <span class="conv-msg">${c.message || '—'}</span>
+          <span class="conv-time">${formatDate(c.created_at)}</span>
+        </div>
+      `).join('');
+    } catch {}
+  }
+
+  function filterConversations() {
+    const q = document.getElementById('convSearch').value.toLowerCase();
+    const intent = document.getElementById('intentFilter').value;
+    convOffset = 0;
+    filteredConvs = allConvs.filter(c => {
+      const matchQ = !q || c.message?.toLowerCase().includes(q) || c.phone?.includes(q);
+      const matchI = !intent || c.intent === intent;
+      return matchQ && matchI;
+    });
+    renderConversations();
+  }
+
+  function renderConversations() {
+    const container = document.getElementById('convsList');
+    const page = filteredConvs.slice(convOffset, convOffset + convLimit);
+
+    if (!page.length) {
+      container.innerHTML = '<div class="empty"><div class="empty-icon">💬</div>No conversations found</div>';
+      document.getElementById('convPageInfo').textContent = '0 results';
+      document.getElementById('convPrev').disabled = true;
+      document.getElementById('convNext').disabled = true;
+      return;
+    }
+
+    container.innerHTML = page.map(c => `
+      <div class="conv-item">
+        <span class="conv-phone">${maskPhone(c.phone)}</span>
+        <span class="conv-intent">${c.intent || '—'}</span>
+        <span class="conv-msg">${c.message || '—'}</span>
+        <span class="conv-time">${formatDate(c.created_at)}</span>
+      </div>
+    `).join('');
+
+    const total = filteredConvs.length;
+    const from = convOffset + 1;
+    const to = Math.min(convOffset + convLimit, total);
+    document.getElementById('convPageInfo').textContent = `${from}–${to} of ${total}`;
+    document.getElementById('convPrev').disabled = convOffset === 0;
+    document.getElementById('convNext').disabled = to >= total;
+  }
+
+  function changeConvPage(dir) {
+    convOffset = Math.max(0, convOffset + dir * convLimit);
+    renderConversations();
+  }
+
+  // ─── SYNC ─────────────────────────────────────────────────────────────────
+  async function triggerSync() {
+    const btn = document.getElementById('syncBtn');
+    btn.classList.add('loading');
+    btn.innerHTML = '<span class="spinner"></span> Syncing...';
+    try {
+      await apiFetch('/admin/sync-prices', { method: 'POST' });
+      showToast('Price sync started ✓', 'success');
+      setTimeout(() => loadPrices(), 3000);
+    } catch {
+      showToast('Sync failed — check logs', 'error');
+    } finally {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span>🔄</span> Sync Prices';
+    }
+  }
+
+  // ─── TAB SWITCHING ────────────────────────────────────────────────────────
+  const tabTitles = {
+    dashboard: ['Dashboard', 'Overview of your platform'],
+    prices: ['Market Prices', 'Manage crop prices across all markets'],
+    buyers: ['Verified Buyers', 'Manage buyer listings'],
+    farmers: ['Registered Farmers', 'All farmers using FarmConnect AI'],
+    conversations: ['Conversation Logs', 'WhatsApp message history'],
+  };
+
+  const tabLoaders = {
+    prices: loadPrices,
+    buyers: loadBuyers,
+    farmers: loadFarmers,
+    conversations: loadConversations,
+  };
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    const [title, sub] = tabTitles[name] || ['', ''];
+    document.getElementById('pageTitle').textContent = title;
+    document.getElementById('pageSubtitle').textContent = sub;
+    if (tabLoaders[name]) tabLoaders[name]();
+  }
+
+  // ─── HELPERS ──────────────────────────────────────────────────────────────
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-NG', { day: '2-digit', month: 'short', year: '2-digit' });
+  }
+
+  function maskPhone(phone) {
+    if (!phone) return '—';
+    return phone.replace(/(\+\d{3})\d{4}(\d{4})/, '$1****$2');
+  }
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✅ ' : '❌ ') + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  // ─── BOOT ─────────────────────────────────────────────────────────────────
   init();
 </script>
 </body>
