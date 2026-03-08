@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 const app = require('./src/app');
 const db = require('./src/config/db');
+const { startPriceSyncJob } = require('./src/jobs/syncPrices');
 
 const PORT = process.env.PORT || 3000;
 
@@ -20,6 +21,7 @@ const start = async () => {
   try {
     const result = await db.query('SELECT NOW()');
     console.log('✅ Database connected:', result.rows[0].now);
+    startPriceSyncJob(); // starts sync on boot, runs daily
     await warmupNLP(); // add this
     await app.listen({ port: PORT, host: '0.0.0.0' });
     console.log(`🌾 FarmConnect AI running on port ${PORT}`);
