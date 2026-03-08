@@ -981,20 +981,25 @@
   }
 
   // ─── API HELPERS ──────────────────────────────────────────────────────────
-  async function apiFetch(path, opts = {}) {
-    try {
-      const res = await fetch(API + path, {
-        headers: { 'Content-Type': 'application/json', ...opts.headers },
-        ...opts,
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      showToast('API error: ' + err.message, 'error');
-      throw err;
-    }
-  }
 
+  const ADMIN_KEY = new URLSearchParams(window.location.search).get('key') || '';
+ async function apiFetch(path, opts = {}) {
+  try {
+    const res = await fetch(API + path, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': ADMIN_KEY,
+        ...opts.headers,
+      },
+      ...opts,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    showToast('API error: ' + err.message, 'error');
+    throw err;
+  }
+}
   // ─── STATS ────────────────────────────────────────────────────────────────
   async function loadStats() {
     try {

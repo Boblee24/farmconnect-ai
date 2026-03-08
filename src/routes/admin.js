@@ -7,15 +7,14 @@ const ADMIN_KEY = process.env.ADMIN_KEY || 'farmconnect-admin-2026';
 async function adminRoutes(fastify, options) {
 
   // ─── AUTH HOOK ─────────────────────────────────────────────────────────
-  fastify.addHook('preHandler', async (request, reply) => {
-    // Skip auth for the admin HTML page itself
-    if (request.url === '/admin' || request.url === '/admin/') return;
-
-    const key = request.headers['x-admin-key'] || request.query.key;
-    if (key !== ADMIN_KEY) {
-      return reply.code(401).send({ error: 'Unauthorized' });
-    }
-  });
+fastify.addHook('preHandler', async (request, reply) => {
+  const key = request.headers['x-admin-key'] || request.query.key;
+  const ADMIN_KEY = process.env.ADMIN_KEY || 'farmconnect-admin-2026';
+  
+  if (key !== ADMIN_KEY) {
+    return reply.code(401).send({ error: 'Unauthorized' });
+  }
+});
 
   // ─── STATS ─────────────────────────────────────────────────────────────
   fastify.get('/stats', async (request, reply) => {
