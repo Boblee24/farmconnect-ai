@@ -1,18 +1,25 @@
 const fastify = require('fastify')({ logger: true });
 const path = require('path');
+const fastifyStatic = require('@fastify/static'); // 👈 ADD THIS
 
 // Plugins
 fastify.register(require('@fastify/cors'), { origin: '*' });
 fastify.register(require('@fastify/formbody'));
+
+// Serve admin static files
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, '../admin'),
+  prefix: '/admin-static/',
+});
 
 // Routes
 fastify.register(require('./routes/webhook'), { prefix: '/webhook' });
 fastify.register(require('./routes/prices'), { prefix: '/api/prices' });
 fastify.register(require('./routes/farmers'), { prefix: '/api/farmers' });
 fastify.register(require('./routes/buyers'), { prefix: '/api/buyers' });
-fastify.register(require('./routes/admin'), { prefix: '/api/admin' });
+fastify.register(require('./routes/admin'), { prefix: '/admin' }); // 👈 changed from /api/admin to /admin
 
-
+// Serve admin dashboard HTML
 fastify.get('/admin', async (request, reply) => {
   const key = request.query.key;
   if (key !== (process.env.ADMIN_KEY || 'farmconnect-admin-2026')) {
@@ -24,12 +31,6 @@ fastify.get('/admin', async (request, reply) => {
     `);
   }
   return reply.sendFile('index.html', path.join(__dirname, '../admin'));
-});
-
-// Register admin API routes
-fastify.register(fastifyStatic, {
-  root: path.join(__dirname, '../admin'),
-  prefix: '/admin-static/',
 });
 
 // Health check
